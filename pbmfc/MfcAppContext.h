@@ -1,0 +1,30 @@
+#pragma once
+
+#include "FormDef.h"
+
+#include <tr1/unordered_map>
+
+namespace pb
+{
+
+	class CMfcAppContext
+		: public IAppContext
+	{
+	public:
+		CMfcAppContext();
+		virtual ~CMfcAppContext();
+
+		virtual void addEntry(FormEntry* pEntry, void* pTarget);
+
+		virtual void RequestDispatch(Request& request, evwork::IConn* pConn);
+
+	protected:
+		virtual void DefaultDispatch(Request& request, evwork::IConn* pConn);
+
+	protected:
+		typedef std::tr1::unordered_map<PB_CMD_TYPE, FormEntry*> ENTRY_MAP_t;
+
+		ENTRY_MAP_t m_mapEntry;
+	};
+
+}
