@@ -1,0 +1,115 @@
+﻿编译libevwork前，需要安装以下依赖库：
+1. libev
+2. libboost-dev
+3. protobuf
+4. jsoncpp
+
+---------------------------------------------------------------------------------------------
+libev的安装：
+
+下载: http://dist.schmorp.de/libev/libev-4.15.tar.gz
+
+wget http://dist.schmorp.de/libev/libev-4.15.tar.gz
+tar -zxvf libev-4.15.tar.gz
+cd libev-4.15
+./configure
+make
+make install
+
+centos下也可以直接yum安装：
+yum install libev-devel
+
+---------------------------------------------------------------------------------------------
+libboost-dev的安装：
+直接安装：
+apt-get install libboost-dev(ubuntu)
+yum install boost-devel(centos)
+ 
+有可能默认源的版本与需要的不符，这时请登录官网下载需要的版本，网址：
+http://sourceforge.net/projects/boost/files/
+ 
+编译安装
+首先下载源码，解压，进行源码根目录，然后执行：
+ 
+1. 创建boost自己的编译工具bjam，执行
+./bootstrap.sh
+注：也可以使用前缀选项指定安装目录，如
+./bootstrap.sh --prefix=/home/usrname/boost_1_43_0/boost_install，不指定prefix默认安装到/usr/local/include和/usr/local/lib
+ 
+2. 编译boost，执行
+./bjam
+或
+./bjam -a重新编译
+默认生成的中间文件在./bin.v2目录，所有的库会被收集在stage/lib目录下；
+ 
+如果编译过程中出现找不到头文件bzlib.h，需要先安装
+apt-get install libbz2-dev
+
+---------------------------------------------------------------------------------------------
+protobuf的安装：
+
+下载： https://github.com/google/protobuf/releases
+
+编译：
+./configuare
+make
+sudo make install
+安装后头文件 /usr/local/include/google/protobuf/
+库文件  /usr/local/lib/
+
+编写协议文件：
+vim MHello.proto，内容如下：
+message MHello
+{
+        required string str = 1;
+        required int32 number = 2;
+}
+编译协议文件：
+protoc -I=. --cpp_out=.  MHello.proto
+
+使用：
+#include "MHello.pb.h"
+
+序列化：
+                MHello he;
+                he.set_str("hello");
+                he.set_number(1);
+
+                std::string str;
+                he.SerializeToString(&str);
+反序列化：
+                MHello he2;
+                he2.ParseFromString(str);
+
+大概性能：
+protobuf     200W次序列及反序列/S
+msgpack     50W次序列及反序列/S
+jsoncpp       5W次序列及反序列/S
+
+---------------------------------------------------------------------------------------------
+jsoncpp的安装：
+
+下载jsoncpp
+http://sourceforge.net/projects/jsoncpp
+文档：
+http://json.org/json-zh.html 
+
+
+由于jsoncpp需要使用scons编译，需要下载scons（scons采用python编写）
+http://www.scons.org/
+
+编译：
+python /home/kdjie/scons-2.3.1/script/scons platform=linux-gcc
+
+在jsoncpp-src-0.5.0/libs/linux-gcc-4.3.3目录下生成
+libjson_linux-gcc-4.3.3_libmt.a
+libjson_linux-gcc-4.3.3_libmt.so
+
+一些旧版本的编译方法：
+export MYSCONS=/home/kdjie/scons-2.1.0
+export SCONS_LIB_DIR=$MYSCONS/engine
+python $MYSCONS/script/scons platform=linux-gcc
+
+安装：
+sudo cp include/json /usr/local/include/ -r
+sudo cp libs/linux-gcc-4.3.3/* /usr/local/lib/
